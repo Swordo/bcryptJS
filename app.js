@@ -23,10 +23,11 @@ app.use(bodyParser.json())
 app.get('/', (req, res, next) => {
     res.render('index.jade')
 })
-
 app.post('/post', (req, res, next) => {
     var data = new dataModel();
+    data.name = req.body.name
     data.email = req.body.email;
+    data.username = req.body.username;
     //data.password = req.body.password;
     var salt = bcrypt.genSaltSync(10);
     data.password = bcrypt.hashSync(req.body.password, salt)
@@ -34,11 +35,29 @@ app.post('/post', (req, res, next) => {
         if (err) {
             throw err;
         } else {
-            res.send(`your password is`);
+            res.render('login.jade');
         }
     });
 })
-
+app.post('/login/post', (req, res, next) => {
+    dataModel.findOne({
+        email: req.body.email
+    }, (err, result) => {
+        var salt = bcrypt.genSaltSync(10);
+        var pass = bcrypt.hashSync(req.body.password, salt);
+        console.log(`${result.password} real password`)
+        console.log(`${pass}`)
+        if (err) {
+            throw err;
+        } else if (!result) {
+            res.send(`${result.email} is not exist in our database`);
+        } else if (pass == result.password) {
+            res.render('success.jade')
+        } else {
+            res.render('fail.jade');
+        }
+    })
+})
 
 app.listen(port, (err) => {
     if (err) {
