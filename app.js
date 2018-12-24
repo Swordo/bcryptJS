@@ -43,15 +43,15 @@ app.post('/login/post', (req, res, next) => {
     dataModel.findOne({
         email: req.body.email
     }, (err, result) => {
-        var salt = bcrypt.genSaltSync(10);
-        var pass = bcrypt.hashSync(req.body.password, salt);
-        console.log(`${result.password} real password`)
-        console.log(`${pass}`)
+        // var salt = bcrypt.genSaltSync(10);
+        // var pass = bcrypt.hashSync(req.body.password, salt);
+        // console.log(`${result.password} real password`)
+        // console.log(`${pass}`)
         if (err) {
             throw err;
         } else if (!result) {
             res.send(`${result.email} is not exist in our database`);
-        } else if (pass == result.password) {
+        } else if (bcrypt.compare(result.password, req.body.password)) {
             res.render('success.jade')
         } else {
             res.render('fail.jade');
